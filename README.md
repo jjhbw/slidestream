@@ -16,6 +16,12 @@ This tool uses forked code from these OpenSlide rust bindings: https://crates.io
 
 See https://openslide.org/download/ for instructions on how to install OpenSlide 3.4.1.
 
+On MacOS (ARM), do not forget to add OpenSlide to your LIBRARY_PATH.:
+```sh
+brew install openslide
+export LIBRARY_PATH=$LIBRARY_PATH:/opt/homebrew/Cellar/openslide/3.4.1_7/lib
+```
+
 ## Build and run the example
 
 We use the CMU-1 slide, which is one of the example tissue slides provided by Carnegie Mellon University (licensed CC0 1.0).
