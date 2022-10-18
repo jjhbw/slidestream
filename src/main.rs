@@ -18,7 +18,10 @@ async fn tile_endpoint(
     // TODO: evaluate performance of jpg quality
     tile.write_to(&mut buffer, ImageOutputFormat::Jpeg(80))
         .unwrap();
-    HttpResponse::Ok().content_type("image/jpeg").body(buffer)
+    HttpResponse::Ok()
+        .content_type("image/jpeg")
+        .set_header("Access-Control-Allow-Origin", "*")
+        .body(buffer)
 }
 
 #[get("/some_slide.dzi")]
