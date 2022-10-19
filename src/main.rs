@@ -4,14 +4,17 @@ use actix_files as fs;
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use generator::DeepZoomGenerator;
 use image::{DynamicImage, ImageOutputFormat};
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
-#[get("/some_slide_files/{level}/{col}_{row}.jpg")]
+#[get("/{slide}_files/{level}/{col}_{row}.jpg")]
 async fn tile_endpoint(
-    gen: web::Data<DeepZoomGenerator>,
-    web::Path((level, col, row)): web::Path<(u64, u64, u64)>,
+    viewers: web::Data<HashMap<&str, DeepZoomGenerator>>,
+    web::Path((slide, level, col, row)): web::Path<(String, u64, u64, u64)>,
 ) -> HttpResponse {
     // TODO: ensure errors are presented in the frontend.
+
+    let gen = viewers.get(slide.as_str()).expect("slide not found");
+
     let tile: DynamicImage = gen.get_tile(level, col, row).unwrap();
     let mut buffer = Vec::new();
 
@@ -24,8 +27,12 @@ async fn tile_endpoint(
         .body(buffer)
 }
 
-#[get("/some_slide.dzi")]
-async fn dzi(gen: web::Data<DeepZoomGenerator>) -> impl Responder {
+#[get("/{slide}.dzi")]
+async fn dzi(
+    viewers: web::Data<HashMap<&str, DeepZoomGenerator>>,
+    web::Path(slide): web::Path<String>,
+) -> impl Responder {
+    let gen = viewers.get(slide.as_str()).expect("slide not found");
     HttpResponse::Ok().body(gen.get_dzi())
 }
 
@@ -34,9 +41,13 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         let args: Vec<String> = std::env::args().collect();
         let filename = Path::new(&args[1]);
-        let g = DeepZoomGenerator::new(filename).expect("Could not start DeepZoomGenerator");
+        let mut viewers = HashMap::new();
+        viewers.insert(
+            "slide_1",
+            DeepZoomGenerator::new(filename).expect("Could not start DeepZoomGenerator"),
+        );
         App::new()
-            .data(g)
+            .data(viewers)
             .service(dzi)
             .service(tile_endpoint)
             .service(fs::Files::new("/static", "./public/static").show_files_listing())
