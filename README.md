@@ -46,6 +46,6 @@ Note that `flamegraph` requires `sudo` privileges to run on most machines.
 Example command:
 
 ```bash
-sudo flamegraph -o flamegraph.svg ./target/release/deps/slidestream-28140b6ab18609c3
+sudo cargo flamegraph --bench benchmarks
 ```
 
