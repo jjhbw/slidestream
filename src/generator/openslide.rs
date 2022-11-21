@@ -36,6 +36,9 @@ impl Drop for OpenSlide {
     }
 }
 
+unsafe impl Send for OpenSlide {}
+unsafe impl Sync for OpenSlide {}
+
 impl OpenSlide {
     /// This method tries to open the slide at the given filename location.
     ///
