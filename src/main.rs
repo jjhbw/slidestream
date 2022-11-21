@@ -24,6 +24,8 @@ async fn tile_endpoint(
     HttpResponse::Ok()
         .content_type("image/jpeg")
         .set_header("Access-Control-Allow-Origin", "*")
+        // TODO: caching is very aggressive and not private. Ensure URL is unique.
+        .set_header("Cache-Control", "public, max-age=604800, immutable")
         .body(buffer)
 }
 
