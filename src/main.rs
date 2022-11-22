@@ -6,9 +6,8 @@ use actix_web::{
 };
 use env_logger::Env;
 use generator::DeepZoomGenerator;
-use image::{DynamicImage, ImageOutputFormat};
+use image::ImageOutputFormat;
 use std::{collections::HashMap, path::Path};
-use tokio::task;
 
 async fn tile_endpoint(
     viewers: web::Data<HashMap<String, DeepZoomGenerator>>,
@@ -17,13 +16,9 @@ async fn tile_endpoint(
     let (slide, level, col, row) = path.into_inner();
 
     // TODO: ensure errors are presented in the frontend.
-    // TODO: revisit thread safety of OpenSlide object from bindings, see https://github.com/openslide/openslide/issues/242
-    let tile: DynamicImage = task::spawn_blocking(move || {
-        let gen = viewers.get(&slide).expect("slide not found");
-        gen.get_tile(level, col, row).unwrap()
-    })
-    .await
-    .unwrap();
+    let gen = viewers.get(&slide).expect("slide not found");
+    let tile = gen.get_tile(level, col, row).unwrap();
+
     let mut buffer = Vec::new();
 
     // TODO: evaluate performance of jpg quality
