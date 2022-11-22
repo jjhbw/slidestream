@@ -55,7 +55,6 @@ async fn main() -> std::io::Result<()> {
             .service(fs::Files::new("/static", "./public/static").show_files_listing())
             .service(fs::Files::new("/", "./public/index.html").show_files_listing())
     })
-    // TODO: get_tile is mostly I/O-bound. Upping number of HTTP workers is crude way to scale that. Use a thread pool with futures instead.
     .workers(10)
     .bind("localhost:8080")?
     .run()
