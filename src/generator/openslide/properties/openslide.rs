@@ -176,11 +176,6 @@ impl OpenSlide {
                         }
                         None => println!("self.levels is unexpectedly None"),
                     }
-                } else {
-                    println!(
-                        "Could not parse property with name {} and value {}",
-                        name, value
-                    );
                 }
             }
         }
