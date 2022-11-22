@@ -4,6 +4,7 @@ use actix_files as fs;
 use actix_web::{
     http::header::ContentType, middleware, web, App, HttpResponse, HttpServer, Responder,
 };
+use env_logger::Env;
 use generator::DeepZoomGenerator;
 use image::{DynamicImage, ImageOutputFormat};
 use std::{collections::HashMap, path::Path};
@@ -49,6 +50,7 @@ async fn dzi(
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
     HttpServer::new(|| {
         let args: Vec<String> = std::env::args().collect();
         let filename = Path::new(&args[1]);
@@ -59,6 +61,7 @@ async fn main() -> std::io::Result<()> {
         );
         let state = web::Data::new(viewers);
         App::new()
+            .wrap(middleware::Logger::default())
             .wrap(middleware::DefaultHeaders::new().add(("Access-Control-Allow-Origin", "*")))
             .app_data(state)
             .route("/{slide}.dzi", web::get().to(dzi))
