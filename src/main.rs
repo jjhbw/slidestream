@@ -1,17 +1,18 @@
 mod generator;
 
 use actix_files as fs;
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{http::header::ContentType, web, App, HttpResponse, HttpServer, Responder};
 use generator::DeepZoomGenerator;
 use image::{DynamicImage, ImageOutputFormat};
 use std::{collections::HashMap, path::Path};
 use tokio::task;
 
-#[get("/{slide}_files/{level}/{col}_{row}.jpg")]
 async fn tile_endpoint(
     viewers: web::Data<HashMap<String, DeepZoomGenerator>>,
-    web::Path((slide, level, col, row)): web::Path<(String, u64, u64, u64)>,
+    path: web::Path<(String, u64, u64, u64)>,
 ) -> HttpResponse {
+    let (slide, level, col, row) = path.into_inner();
+
     // TODO: ensure errors are presented in the frontend.
     // TODO: revisit thread safety of OpenSlide object from bindings, see https://github.com/openslide/openslide/issues/242
     let tile: DynamicImage = task::spawn_blocking(move || {
@@ -26,23 +27,23 @@ async fn tile_endpoint(
     tile.write_to(&mut buffer, ImageOutputFormat::Jpeg(80))
         .unwrap();
     HttpResponse::Ok()
-        .content_type("image/jpeg")
-        .set_header("Access-Control-Allow-Origin", "*")
+        .content_type(ContentType::jpeg())
+        .insert_header(("Access-Control-Allow-Origin", "*"))
         // TODO: caching is very aggressive and not private. Ensure URL is unique.
-        .set_header("Cache-Control", "public, max-age=604800, immutable")
+        .insert_header(("Cache-Control", "public, max-age=604800, immutable"))
         .body(buffer)
 }
 
-#[get("/{slide}.dzi")]
 async fn dzi(
     viewers: web::Data<HashMap<String, DeepZoomGenerator>>,
-    web::Path(slide): web::Path<String>,
+    path: web::Path<String>,
 ) -> impl Responder {
+    let slide = path.into_inner();
     let gen = viewers.get(slide.as_str()).expect("slide not found");
     HttpResponse::Ok().body(gen.get_dzi())
 }
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         let args: Vec<String> = std::env::args().collect();
@@ -52,10 +53,14 @@ async fn main() -> std::io::Result<()> {
             "slide_1".to_string(),
             DeepZoomGenerator::new(filename).expect("Could not start DeepZoomGenerator"),
         );
+        let state = web::Data::new(viewers);
         App::new()
-            .data(viewers)
-            .service(dzi)
-            .service(tile_endpoint)
+            .app_data(state)
+            .route("/{slide}.dzi", web::get().to(dzi))
+            .route(
+                "/{slide}_files/{level}/{col}_{row}.jpg",
+                web::get().to(tile_endpoint),
+            )
             .service(fs::Files::new("/static", "./public/static").show_files_listing())
             .service(fs::Files::new("/", "./public/index.html").show_files_listing())
     })
