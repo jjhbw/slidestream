@@ -1,7 +1,9 @@
 mod generator;
 
 use actix_files as fs;
-use actix_web::{http::header::ContentType, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    http::header::ContentType, middleware, web, App, HttpResponse, HttpServer, Responder,
+};
 use generator::DeepZoomGenerator;
 use image::{DynamicImage, ImageOutputFormat};
 use std::{collections::HashMap, path::Path};
@@ -28,7 +30,6 @@ async fn tile_endpoint(
         .unwrap();
     HttpResponse::Ok()
         .content_type(ContentType::jpeg())
-        .insert_header(("Access-Control-Allow-Origin", "*"))
         // TODO: caching is very aggressive and not private. Ensure URL is unique.
         .insert_header(("Cache-Control", "public, max-age=604800, immutable"))
         .body(buffer)
@@ -42,7 +43,6 @@ async fn dzi(
     let gen = viewers.get(slide.as_str()).expect("slide not found");
     HttpResponse::Ok()
         // TODO: caching is very aggressive and not private. Ensure URL is unique.
-        .insert_header(("Access-Control-Allow-Origin", "*"))
         .insert_header(("Cache-Control", "public, max-age=604800, immutable"))
         .body(gen.get_dzi())
 }
@@ -59,6 +59,7 @@ async fn main() -> std::io::Result<()> {
         );
         let state = web::Data::new(viewers);
         App::new()
+            .wrap(middleware::DefaultHeaders::new().add(("Access-Control-Allow-Origin", "*")))
             .app_data(state)
             .route("/{slide}.dzi", web::get().to(dzi))
             .route(
