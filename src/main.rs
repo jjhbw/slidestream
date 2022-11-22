@@ -40,7 +40,11 @@ async fn dzi(
 ) -> impl Responder {
     let slide = path.into_inner();
     let gen = viewers.get(slide.as_str()).expect("slide not found");
-    HttpResponse::Ok().body(gen.get_dzi())
+    HttpResponse::Ok()
+        // TODO: caching is very aggressive and not private. Ensure URL is unique.
+        .insert_header(("Access-Control-Allow-Origin", "*"))
+        .insert_header(("Cache-Control", "public, max-age=604800, immutable"))
+        .body(gen.get_dzi())
 }
 
 #[tokio::main]
