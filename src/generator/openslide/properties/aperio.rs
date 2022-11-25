@@ -50,10 +50,10 @@ impl Aperio {
             "aperio.ICC Profile" => self.icc_profile = Some(String::from(value)),
             "aperio.Parmset" => self.parmset = Some(String::from(value)),
             "aperio.OriginalHeight" => {
-                self.original_height = Some(u32::from_str_radix(value, 10).unwrap())
+                self.original_height = Some(value.parse().unwrap())
             }
             "aperio.OriginalWidth" => {
-                self.original_width = Some(u32::from_str_radix(value, 10).unwrap())
+                self.original_width = Some(value.parse().unwrap())
             }
             "aperio.Top" => self.top = Some(f32::from_str_radix(value, 10).unwrap()),
             "aperio.Left" => self.left = Some(f32::from_str_radix(value, 10).unwrap()),
@@ -70,16 +70,16 @@ impl Aperio {
             "aperio.Focus Offset" => {
                 self.focus_offset = Some(f32::from_str_radix(value, 10).unwrap())
             }
-            "aperio.AppMag" => self.app_mag = Some(u32::from_str_radix(value, 10).unwrap()),
+            "aperio.AppMag" => self.app_mag = Some(value.parse().unwrap()),
             "aperio.StripeWidth" => {
-                self.stripe_width = Some(u32::from_str_radix(value, 10).unwrap())
+                self.stripe_width = Some(value.parse().unwrap())
             }
-            "aperio.Filtered" => self.filtered = Some(u32::from_str_radix(value, 10).unwrap()),
+            "aperio.Filtered" => self.filtered = Some(value.parse().unwrap()),
             "aperio.DisplayColor" => {
-                self.display_color = Some(u32::from_str_radix(value, 10).unwrap())
+                self.display_color = Some(value.parse().unwrap())
             }
             "aperio.Exposure Time" => {
-                self.exposure_time = Some(u32::from_str_radix(value, 10).unwrap())
+                self.exposure_time = Some(value.parse().unwrap())
             }
             "aperio.Exposure Scale" => {
                 self.exposure_scale = Some(f32::from_str_radix(value, 10).unwrap())

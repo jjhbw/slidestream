@@ -15,23 +15,23 @@ pub enum Format {
     /// Single-file pyramidal tiled TIFF, with non-standard metadata and compression.
     ///
     /// File extensions:
-    /// 	.svs, .tif
+    ///     .svs, .tif
     Aperio,
     /// Multi-file JPEG/NGR with proprietary metadata and index file formats, and single-file
     /// TIFF-like format with proprietary metadata.
     ///
     /// File extensions:
-    /// 	.vms, .vmu, .ndpi
+    ///     .vms, .vmu, .ndpi
     Hamamatsu,
     /// Single-file pyramidal tiled BigTIFF with non-standard metadata.
     ///
     /// File extensions
-    /// 	.scn
+    ///     .scn
     Leica,
     /// Multi-file with very complicated proprietary metadata and indexes.
     ///
     /// File extensions
-    /// 	.mrxs
+    ///     .mrxs
     Mirax,
     /// Single-file pyramidal tiled TIFF or BigTIFF with non-standard metadata.
     ///
@@ -79,7 +79,7 @@ pub enum WordRepresentation {
 /// This function takes a buffer, as the one obtained from openslide::read_region, and decodes into
 /// an Rgba image buffer.
 pub fn decode_buffer(
-    buffer: &Vec<u32>,
+    buffer: &[u32],
     height: u32,
     width: u32,
     word_representation: WordRepresentation,

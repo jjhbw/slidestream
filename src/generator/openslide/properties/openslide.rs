@@ -87,7 +87,7 @@ impl OpenSlide {
         let computed_level_count = find_max_level(property_map);
         let level_count = match property_map.get("openslide.level-count") {
             Some(val) => {
-                let level_count = match u32::from_str_radix(val, 10) {
+                let level_count = match val.parse() {
                     Ok(val) => Some(val),
                     Err(_) => None,
                 };
@@ -131,18 +131,18 @@ impl OpenSlide {
             "openslide.mpp-x" => self.mpp_x = Some(f32::from_str_radix(value, 10).unwrap()),
             "openslide.mpp-y" => self.mpp_y = Some(f32::from_str_radix(value, 10).unwrap()),
             "openslide.objective-power" => {
-                self.objective_power = Some(u32::from_str_radix(value, 10).unwrap())
+                self.objective_power = Some(value.parse().unwrap())
             }
             "openslide.comment" => self.comment = Some(String::from(value)),
             "openslide.level-count" => {
-                self.level_count = Some(u32::from_str_radix(value, 10).unwrap())
+                self.level_count = Some(value.parse().unwrap())
             }
             _ => {
                 if name.contains("level[") {
                     let level = {
                         let starts_with_number = name.split("level[").last().unwrap();
                         let number_as_string = starts_with_number.split(']').next().unwrap();
-                        u32::from_str_radix(number_as_string, 10).unwrap() as usize
+                        number_as_string.parse::<usize>().unwrap()
                     };
                     match self.levels {
                         Some(ref mut vector) => {
@@ -157,19 +157,19 @@ impl OpenSlide {
                                 }
                                 "height" => {
                                     vector[level].height =
-                                        Some(u32::from_str_radix(value, 10).unwrap())
+                                        Some(value.parse().unwrap())
                                 }
                                 "width" => {
                                     vector[level].width =
-                                        Some(u32::from_str_radix(value, 10).unwrap())
+                                        Some(value.parse().unwrap())
                                 }
                                 "tile-height" => {
                                     vector[level].tile_height =
-                                        Some(u32::from_str_radix(value, 10).unwrap())
+                                        Some(value.parse().unwrap())
                                 }
                                 "tile-width" => {
                                     vector[level].tile_width =
-                                        Some(u32::from_str_radix(value, 10).unwrap())
+                                        Some(value.parse().unwrap())
                                 }
                                 _ => {}
                             }
@@ -217,13 +217,12 @@ impl OpenSlide {
 /// Find the max level from the `openslide.level[<level>].<level-property>` properties.
 fn find_max_level(property_map: &HashMap<String, String>) -> Option<u32> {
     let mut found_levels = Vec::<u32>::new();
-    for (key, _) in property_map {
+    for key in property_map.keys() {
         if key.contains("level[") {
             let starts_with_number = key.split("level[").last().unwrap();
             let number_as_string = starts_with_number.split(']').next().unwrap();
-            match u32::from_str_radix(number_as_string, 10) {
-                Ok(val) => found_levels.push(val),
-                Err(_) => {}
+            if let Ok(val) = number_as_string.parse() {
+                found_levels.push(val)
             }
         }
     }
