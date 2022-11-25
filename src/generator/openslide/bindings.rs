@@ -7,7 +7,7 @@
 //!
 
 use failure::Error;
-use libc;
+
 use std::{self, ffi, str};
 
 /// Dummy type for the openslide_t type in OpenSlide
