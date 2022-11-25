@@ -53,7 +53,7 @@ impl OpenSlide {
         let osr = bindings::open(
             filename
                 .to_str()
-                .ok_or(format_err!("Error: Path to &str"))?,
+                .ok_or_else(|| format_err!("Error: Path to &str"))?,
         )?;
 
         let mut property_map = HashMap::<String, String>::new();
@@ -141,7 +141,7 @@ impl OpenSlide {
         self.assert_level_validity(level)?;
         let level = level
             .to_i32()
-            .ok_or(format_err!("Conversion to primitive error"))?;
+            .ok_or_else(|| format_err!("Conversion to primitive error"))?;
 
         let (width, height) = unsafe { bindings::get_level_dimensions(self.osr, level)? };
 
@@ -186,7 +186,7 @@ impl OpenSlide {
         self.assert_level_validity(level)?;
         let level = level
             .to_i32()
-            .ok_or(format_err!("Conversion to primitive error"))?;
+            .ok_or_else(|| format_err!("Conversion to primitive error"))?;
         let downsample_factor = unsafe { bindings::get_level_downsample(self.osr, level)? };
 
         if downsample_factor < 0.0 {
@@ -223,7 +223,7 @@ impl OpenSlide {
                 self.osr,
                 downsample_factor
                     .to_f64()
-                    .ok_or(format_err!("Conversion to primitive error"))?,
+                    .ok_or_else(|| format_err!("Conversion to primitive error"))?,
             )?
         };
 
@@ -267,26 +267,26 @@ impl OpenSlide {
 
         let tl_row_this_lvl = top_left_lvl0_row
             .to_f64()
-            .ok_or(format_err!("Conversion to primitive error"))?
+            .ok_or_else(|| format_err!("Conversion to primitive error"))?
             / downsample_factor;
         let tl_col_this_lvl = top_left_lvl0_col
             .to_f64()
-            .ok_or(format_err!("Conversion to primitive error"))?
+            .ok_or_else(|| format_err!("Conversion to primitive error"))?
             / downsample_factor;
 
         let new_height = height
             .to_u64()
-            .ok_or(format_err!("Conversion to primitive error"))?
+            .ok_or_else(|| format_err!("Conversion to primitive error"))?
             .min(max_height - tl_row_this_lvl.round() as u64);
         let new_width = width
             .to_u64()
-            .ok_or(format_err!("Conversion to primitive error"))?
+            .ok_or_else(|| format_err!("Conversion to primitive error"))?
             .min(max_width - tl_col_this_lvl.round() as u64);
 
         if new_height
             < height
                 .to_u64()
-                .ok_or(format_err!("Conversion to primitive error"))?
+                .ok_or_else(|| format_err!("Conversion to primitive error"))?
         {
             println!(
                 "WARNING: Requested region height is changed from {} to {} in order to fit",
@@ -296,7 +296,7 @@ impl OpenSlide {
         if new_width
             < width
                 .to_u64()
-                .ok_or(format_err!("conversion to primitive error"))?
+                .ok_or_else(|| format_err!("conversion to primitive error"))?
         {
             println!(
                 "WARNING: Requested region width is changed from {} to {} in order to fit",
@@ -384,7 +384,7 @@ impl OpenSlide {
         let max_num_levels = self.get_level_count()?;
         let level = level
             .to_u32()
-            .ok_or(format_err!("Conversion to primitive error"))?;
+            .ok_or_else(|| format_err!("Conversion to primitive error"))?;
         if level >= max_num_levels {
             return Err(format_err!(
                 "Error: Specified level {} is larger than the max slide level {}",
