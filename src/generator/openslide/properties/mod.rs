@@ -53,7 +53,7 @@ impl Properties {
         let mut aperio_properties = aperio::Aperio::default();
 
         for (key, value) in property_map {
-            let parent = key.split('.').nth(0);
+            let parent = key.split('.').next();
             match parent {
                 Some("openslide") => openslide_properties.parse_property_name(key, value),
                 Some("tiff") => tiff_properties.parse_property_name(key, value),

@@ -141,7 +141,7 @@ impl OpenSlide {
                 if name.contains("level[") {
                     let level = {
                         let starts_with_number = name.split("level[").last().unwrap();
-                        let number_as_string = starts_with_number.split("]").nth(0).unwrap();
+                        let number_as_string = starts_with_number.split(']').next().unwrap();
                         u32::from_str_radix(number_as_string, 10).unwrap() as usize
                     };
                     match self.levels {
@@ -220,15 +220,12 @@ fn find_max_level(property_map: &HashMap<String, String>) -> Option<u32> {
     for (key, _) in property_map {
         if key.contains("level[") {
             let starts_with_number = key.split("level[").last().unwrap();
-            let number_as_string = starts_with_number.split("]").nth(0).unwrap();
+            let number_as_string = starts_with_number.split(']').next().unwrap();
             match u32::from_str_radix(number_as_string, 10) {
                 Ok(val) => found_levels.push(val),
                 Err(_) => {}
             }
         }
     }
-    match found_levels.iter().max() {
-        Some(val) => Some(*val + 1),
-        None => None,
-    }
+    found_levels.iter().max().map(|val| *val + 1)
 }

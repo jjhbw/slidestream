@@ -43,7 +43,7 @@ impl DeepZoomGenerator {
         let overlap: u64 = 1;
         let _l0_offset: (u64, u64) = (0, 0);
 
-        let wsi = openslide::OpenSlide::new(&wsi_path)?;
+        let wsi = openslide::OpenSlide::new(wsi_path)?;
         let l0_dimensions = wsi.get_level0_dimensions()?; // (width, height)
         let level_count = wsi.get_level_count()?;
         let mut level_dimensions: Vec<(u64, u64)> = Vec::new();
@@ -57,8 +57,8 @@ impl DeepZoomGenerator {
         }
 
         // Derive all possible Deep Zoom levels.
-        let mut z_size: (u64, u64) = l0_dimensions.clone();
-        let mut z_dimensions: Vec<(u64, u64)> = vec![z_size.clone()];
+        let mut z_size: (u64, u64) = l0_dimensions;
+        let mut z_dimensions: Vec<(u64, u64)> = vec![z_size];
         while z_size.0 > 1 || z_size.1 > 1 {
             let (w, h) = z_size;
             z_size = (
@@ -103,7 +103,7 @@ impl DeepZoomGenerator {
             _l_z_downsamples.push(ds);
         }
 
-        return Ok(DeepZoomGenerator {
+        Ok(DeepZoomGenerator {
             wsi,
             l0_dimensions,
             level_dimensions,
@@ -115,7 +115,7 @@ impl DeepZoomGenerator {
             l0_l_downsamples,
             tile_size,
             overlap,
-        });
+        })
     }
 
     pub fn get_dzi(&self) -> String {
@@ -132,7 +132,7 @@ impl DeepZoomGenerator {
                 }
             }
         });
-        return data.to_string();
+        data.to_string()
     }
 
     fn get_tile_info(&self, dz_level: u64, t_location: (u64, u64)) -> Result<TileInfo, String> {
@@ -157,24 +157,24 @@ impl DeepZoomGenerator {
         // Calculate top/left and bottom/right overlap
         let z_overlap_tl = (
             if t_location.0 != 0 {
-                self.overlap * 1
+                self.overlap
             } else {
                 0
             },
             if t_location.1 != 0 {
-                self.overlap * 1
+                self.overlap
             } else {
                 0
             },
         );
         let z_overlap_br = (
             if t_location.0 != (t_lim.0 - 1) {
-                self.overlap * 1
+                self.overlap
             } else {
                 0
             },
             if t_location.1 != (t_lim.1 - 1) {
-                self.overlap * 1
+                self.overlap
             } else {
                 0
             },
@@ -220,12 +220,12 @@ impl DeepZoomGenerator {
         );
 
         // Return read_region() parameters plus tile size for final scaling
-        return Ok(TileInfo {
+        Ok(TileInfo {
             l0_location,
             slide_level,
             l_size,
             z_size,
-        });
+        })
     }
 
     pub fn get_tile(&self, level: u64, col: u64, row: u64) -> Result<Tile, Box<dyn Error>> {
@@ -250,7 +250,7 @@ impl DeepZoomGenerator {
             let resized = image::imageops::thumbnail(&tile, desired_w as u32, desired_h as u32);
             return Ok(DynamicImage::ImageRgba8(resized));
         }
-        return Ok(DynamicImage::ImageRgba8(tile));
+        Ok(DynamicImage::ImageRgba8(tile))
     }
 }
 
