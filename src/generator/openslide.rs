@@ -71,6 +71,7 @@ impl OpenSlide {
     pub fn get_level_count(&self) -> Result<u32, Error> {
         let num_levels = unsafe { bindings::get_level_count(self.osr)? };
 
+        #[allow(clippy::comparison_chain)]
         if num_levels < -1 {
             Err(format_err!(
                 "Error: Number of levels is {}, this is an unknown error from OpenSlide. \
@@ -97,6 +98,7 @@ impl OpenSlide {
     pub fn get_level0_dimensions(&self) -> Result<(u64, u64), Error> {
         let (width, height) = unsafe { bindings::get_level0_dimensions(self.osr)? };
 
+        #[allow(clippy::comparison_chain)]
         if width < -1 {
             return Err(format_err!(
                 "Error: Width is {}, this is an unknown error from OpenSlide. \
@@ -112,6 +114,7 @@ impl OpenSlide {
             ));
         }
 
+        #[allow(clippy::comparison_chain)]
         if height < -1 {
             return Err(format_err!(
                 "Error: Height is {}, this is an unknown error from OpenSlide. \
@@ -145,6 +148,7 @@ impl OpenSlide {
 
         let (width, height) = unsafe { bindings::get_level_dimensions(self.osr, level)? };
 
+        #[allow(clippy::comparison_chain)]
         if width < -1 {
             return Err(format_err!(
                 "Error: Width is {}, this is an unknown error from OpenSlide. \
@@ -160,6 +164,7 @@ impl OpenSlide {
             ));
         }
 
+        #[allow(clippy::comparison_chain)]
         if height < -1 {
             return Err(format_err!(
                 "Error: Height is {}, this is an unknown error from OpenSlide. \
@@ -227,6 +232,7 @@ impl OpenSlide {
             )?
         };
 
+        #[allow(clippy::comparison_chain)]
         if level < -1 {
             Err(format_err!(
                 "Error: Returned level is {}, this is an unknown error from OpenSlide. \
