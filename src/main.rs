@@ -113,7 +113,6 @@ async fn main() -> std::io::Result<()> {
             .service(fs::Files::new("/static", "./public/static").show_files_listing())
             .service(fs::Files::new("/", "./public/index.html").show_files_listing())
     })
-    .workers(10)
     .bind("localhost:8080")?
     .run()
     .await
